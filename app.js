@@ -49,7 +49,7 @@ let UIController = (function() {
     inputType: '.add__type',
     inputDescription: '.add__description',
     inputValue: '.add__value',
-    inputButton: '.add__btn'
+    inputBtn: '.add__btn'
   }
 
   // The returned object that is assigned to UIController
@@ -89,13 +89,16 @@ let controller = (function(budgetCtrl, UICtrl) {
     // Calculate budget
     
     // Display budget on UI
+    console.log('it works');
   
   }
 
-  document.querySelector(DOM.inputButton).addEventListener('click', ctrlAddItem);
+  document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
 
   document.addEventListener('keypress', function(event) { // An event argument in an eventListener is a huge deal!
     if(event.keyCode === 13 || event.which === 13) { // Only ctrlAddItem if the key pressed was 'Enter'
+      event.preventDefault();
+      event.stopPropagation();
       ctrlAddItem();
     }
   });
