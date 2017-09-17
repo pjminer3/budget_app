@@ -21,8 +21,35 @@ x Write method getInput in UIController to get HTML input for each budget entry
 x Create private object DOMstrings in UIController that houses all the types classnames as property values
   x Do this so, in the case that we change our classnames, we can change them in one Object property instead of all over the JS file
   x Substitue DOMstrings properties instead of classnames for lookups
-- Add a method to the UIctrl returned object that returns the domstrings
-- set new variable DOM in global controler that points the DOMstrings()
+x Add a method to the UIctrl returned object that returns the domstrings
+x set new variable DOM in global controler that points the DOMstrings()
+==== CREATE INITIALIZATION FUNCTION ===
+- Goal is to clean up global controller
+X Set up function setupEventListeners to contain all event listeners
+  X Include everything needed to make the event listeners function properly
+x Create a return object for the global controller
+  x create method init on global object
+    x console loge 'Application has started.'
+    x Do something to ensure event listeners are active
+x Make sure event listeners are live (but how?!?)
+=== CREATING INCOME AND EXPENSE FUNCTION CONSTRUCTORS ===
+x Create two function constructors; Expense and Income, that take 3 arguments; id, description, value
+  x Test them publicly to ensure they work the way you intend
+x Create data structure (data) that houses (allItems) arrays of all expenses (exp), incomes(inc), and numbers for (totals) exp and inc
+=== ADDING A NEW ITEM TO OUR BUDGET CONTROLLER ===
+x Add return object to budget controller
+x Create method addItem that creates a new object and adds it to the data structure
+  x create new item newItem
+    x Needs to be provided with data to create a proper item
+      x Remember that each item has a unique ID
+    x needs to differentiate between expenses and incomes
+  x add new item to data structure
+  x Create a unique ID for each newItem that is an integer and equals 1 more than the .id property of the last object in the respective database array
+    x What might be an edge case? Take into account
+  x Do something with newItem so we can use it later
+x Set it up so a new object is created evertime we click the button or press enter (What function do we call? where? with what do we call it with?)
+  x create variable newItem for this object
+- Create a new method somewhere to be able to test and make sure our objects are being added to the data structure
 
 
 
@@ -30,14 +57,61 @@ x Create private object DOMstrings in UIController that houses all the types cla
 
 // BUDGET CONTROLLER
 let budgetController = (function() {
+  // Creates expense objects
+  let Expense = function (id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+  // Creates income objects
+  let Income = function(id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  }
 
-  // code
+  let data = {
+    allItems: {
+      exp: [],
+      inc: []
+    },
+    totals: {
+      exp: 0,
+      inc: 0
+    }
+  }
+
+  return {
+    addItem: function(type, des, val) {
+      let newItem, ID;
+
+      // Create new ID (but doesn't it need special case for first ID => Yes it fucking did!)
+      if (data.allItems[type].length > 0) {
+        ID = data.allItems[type][data.allItems[type].length - 1].id + 1;  
+      } else {
+        ID = 0;
+      }
+      
+      // Create new object with 'inc' or 'exp' type
+      if (type === 'exp') {
+        newItem = new Expense(ID, des, val);
+      } else if (type === 'inc') {
+        newItem = new Income(ID, des, val);
+      }
+
+      // Push new object into data array
+      data.allItems[type].push(newItem);
+      //data.totals[type] += Number(newItem.value); dk why we don't do this yet but OK
+
+      // Return new budget entry
+      return newItem;
+    },
+    testing: function() {
+      console.log(data);
+    }
+  }
 
 }());
-
-
-
-
 
 
 
@@ -56,6 +130,7 @@ let UIController = (function() {
   return {
     getInput: function() {
       return {
+        // The below 'type' will be either 'inc' or 'exp'
         type: document.querySelector(DOMstrings.inputType).value, // Will only take the value of the selected option
         description: document.querySelector(DOMstrings.inputDescription).value,
         value: document.querySelector(DOMstrings.inputValue).value
@@ -70,39 +145,47 @@ let UIController = (function() {
 
 
 
-
-
 // GLOBAL APP CONTROLLER
 let controller = (function(budgetCtrl, UICtrl) {
 
-  let DOM = UICtrl.getDOMstrings();
+  let setupEventListeners = function() {
+    // Brings DOM elements into lexical scope
+    let DOM = UICtrl.getDOMstrings();
+
+    // Create budget event when button is clicked
+    document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
+    // Create budget event when 'enter' is pressed
+    document.addEventListener('keypress', function(event) { // An event argument in an eventListener is a huge deal!
+      if(event.keyCode === 13 || event.which === 13) { // Only ctrlAddItem if the key pressed was 'Enter'
+        event.preventDefault();
+        event.stopPropagation();
+        ctrlAddItem();
+      }
+    });
+  }
 
   var ctrlAddItem = function() {
     // Get field input data
     var input = UICtrl.getInput();
-    console.log(input);
 
     // Add item to budget controller object
+    let newItem = budgetController.addItem(input.type, input.description, input.value);
 
     // Add new item to UI controller
     
     // Calculate budget
     
     // Display budget on UI
-    console.log('it works');
-  
+
   }
 
-  document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
-
-  document.addEventListener('keypress', function(event) { // An event argument in an eventListener is a huge deal!
-    if(event.keyCode === 13 || event.which === 13) { // Only ctrlAddItem if the key pressed was 'Enter'
-      event.preventDefault();
-      event.stopPropagation();
-      ctrlAddItem();
+  return {
+    init: function() {
+      console.log('Application has started');
+      setupEventListeners();
     }
-  });
-
-
+  }
 
 }(budgetController, UIController));
+
+controller.init();
