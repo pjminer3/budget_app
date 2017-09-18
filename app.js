@@ -73,14 +73,22 @@ x Add new UIController public method addListItem
     x add proper containers to dom strings (incomeContainer/expenseContainer)
   x Call function in ctrlAddItem
 
-  ========== CLEARING OUR INPUT FIELDS ==========
-  - add new public method clearFields to relevant controller
-    - use quertySelectorAll to find both input fields (description and value) in one line of code, assign to variable 'fields'
-      - convert 'fields' to array (because fields is a list, not an array), and store as fieldsArr
-    - Clear each HTML input field using forEach on the elements of fieldsArr
-  - Add it to ctrlAddItem and call it
-  - After running the ctrlAddItem we want focus to return back to the first input box
-    - use the .focus() method 
+========== CLEARING OUR INPUT FIELDS ==========
+x add new public method clearFields to relevant controller
+  x use quertySelectorAll to find both input fields (description and value) in one line of code, assign to variable 'fields'
+    x convert 'fields' to array (because fields is a list, not an array), and store as fieldsArr
+  x Clear each HTML input field using forEach on the elements of fieldsArr
+x Add it to ctrlAddItem and call it
+x After running the ctrlAddItem we want focus to return back to the first input box
+  x use the .focus() method 
+
+========== UPDATING THE BUDGET CONTROLLER ==========
+x in global controller create updateBudget function that does the last two steps of (what was going to be) the ctrlAddItem
+  x add middle method that will return the budget
+x add last step to ctrlAddItem that will call updateBudget
+x Convert getInput function in UIctrl so that value is a number (use parseFloat);
+- write if statement to ensure that budget items will only be created and shown if description != '' and value is a number greater than 0
+- 
 
 */
 
@@ -164,7 +172,7 @@ let UIController = (function() {
         // The below 'type' will be either 'inc' or 'exp'
         type: document.querySelector(DOMstrings.inputType).value, // Will only take the value of the selected option
         description: document.querySelector(DOMstrings.inputDescription).value,
-        value: document.querySelector(DOMstrings.inputValue).value
+        value: parseFloat(document.querySelector(DOMstrings.inputValue).value)
       }
     },
     getDOMstrings: function() {
@@ -233,28 +241,37 @@ let controller = (function(budgetCtrl, UICtrl) {
     });
   }
 
-  var ctrlAddItem = function() {
-    // Get field input data
-    var input = UICtrl.getInput();
-
-    // Add item to budget controller object
-    let newItem = budgetController.addItem(input.type, input.description, input.value);
-
-    // Add new item to UI controller
-    UICtrl.addListItem(newItem, input.type);
-
-    // Clear contents of input boxes
-    UICtrl.clearFields();
+  let updateBudget = function() {
 
     // Calculate budget
     
+    // Return budget
+
     // Display budget on UI
 
   }
 
+  var ctrlAddItem = function() {
+    // Get field input data
+    var input = UICtrl.getInput();
+
+    if (input.description !== "" && !isNaN(input.value) && input.value > 0) {
+      // Add item to budget controller object
+      let newItem = budgetController.addItem(input.type, input.description, input.value);
+  
+      // Add new item to UI controller
+      UICtrl.addListItem(newItem, input.type);
+  
+      // Clear contents of input boxes
+      UICtrl.clearFields();
+  
+      // Update budget
+      updateBudget();
+    }
+  }
+
   return {
     init: function() {
-      console.log('Application has started');
       setupEventListeners();
     }
   }
