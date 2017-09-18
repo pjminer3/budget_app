@@ -71,7 +71,16 @@ x Add new UIController public method addListItem
   x Add HTML to the DOM
     x use insertAdjacentHTML(position, text) method to add the html element to the proper location (depending on type)
     x add proper containers to dom strings (incomeContainer/expenseContainer)
-  - Call function in ctrlAddItem
+  x Call function in ctrlAddItem
+
+  ========== CLEARING OUR INPUT FIELDS ==========
+  - add new public method clearFields to relevant controller
+    - use quertySelectorAll to find both input fields (description and value) in one line of code, assign to variable 'fields'
+      - convert 'fields' to array (because fields is a list, not an array), and store as fieldsArr
+    - Clear each HTML input field using forEach on the elements of fieldsArr
+  - Add it to ctrlAddItem and call it
+  - After running the ctrlAddItem we want focus to return back to the first input box
+    - use the .focus() method 
 
 */
 
@@ -181,6 +190,23 @@ let UIController = (function() {
       // 3. Add HTML to DOM
       element.insertAdjacentHTML('beforeend', newHtml);
 
+    },
+    clearFields: function() {
+      let fields, fieldsArr;
+
+      // Get both (or all) of the input fields into a list (because querySelectorAll makes a list)
+      fields = document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue);
+
+      // Turn the list into an array
+      fieldsArr = Array.prototype.slice.call(fields);
+
+      // Clear the contents of each element in the array
+      fieldsArr.forEach(function(element, idx, arr) {
+        element.value = "";
+      });
+      
+      // Return focus to first input element
+      fieldsArr[0].focus();
     }
   }
 
@@ -216,6 +242,9 @@ let controller = (function(budgetCtrl, UICtrl) {
 
     // Add new item to UI controller
     UICtrl.addListItem(newItem, input.type);
+
+    // Clear contents of input boxes
+    UICtrl.clearFields();
 
     // Calculate budget
     
