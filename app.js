@@ -87,8 +87,37 @@ x in global controller create updateBudget function that does the last two steps
   x add middle method that will return the budget
 x add last step to ctrlAddItem that will call updateBudget
 x Convert getInput function in UIctrl so that value is a number (use parseFloat);
-- write if statement to ensure that budget items will only be created and shown if description != '' and value is a number greater than 0
-- 
+x write if statement to ensure that budget items will only be created and shown if description != '' and value is a number greater than 0
+
+========== UPDATING THE BUDGET: BUDGET CONTROLLER (CONTINUED) ==========
+- How are we going to create the updateBudget function?
+x create public calculateBudget method in the relevant controller
+  x What it will do:
+    // calculate total income & expenses
+    // calculate budget
+    // calculate the % of income we've spent
+  x To 'CALCULATE TOTAL INCOME & EXPENSES'
+    x create private function calculateTotal(type) (because we will use it for both income and expenses)
+      x solve useing forEach()
+       x later solve using reduce();
+      x assign the sum/total to the relevant data structure object
+    x Call the private function twice in the public method
+  x To 'CALCULATE BUDGET':
+    x create property in global data structure called 'budget' and set to 0
+    x in calculateBudget method assign 'budget' to equal the new income - expenses
+  x To CALCULATE THE %'
+    x create property in data structure called 'percentage'
+    x assign 'percentage' to relevant number in the public method (integer)
+    x round percentage to nearest integer
+    x set it so percentage is only calculated if income > 0
+x Run calculateBudget where it needs to be ran
+x create getBudget public method in the relevant controller
+  x set it so that it returns all 4 values needed: budget, totalInc, totalExp, percentage
+x run getBudget where it needs to be ran, creating new variable 'budget'
+- test by console.log the created budget object
+
+    
+
 
 */
 
@@ -115,7 +144,18 @@ let budgetController = (function() {
     totals: {
       exp: 0,
       inc: 0
-    }
+    },
+    budget: 0,
+    percentage: 0
+  }
+
+  let calculateTotal = function(type) {
+    let sum = data.allItems[type].reduce(function(sum, obj) {
+      return sum += obj.value;
+    }, 0);
+
+
+    data.totals[type] = sum;
   }
 
   return {
@@ -143,6 +183,31 @@ let budgetController = (function() {
       // Return new budget entry
       return newItem;
     },
+
+    calculateBudget: function() {
+    
+      // calculate total income & expenses
+      calculateTotal('inc');
+      calculateTotal('exp');
+
+      // calculate budget
+      data.budget = data.totals.inc - data.totals.exp;
+
+      // calculate the % of income we've spent
+      if (data.totals.inc > 0 && data.totals.exp > 0) {
+        data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
+      }
+    },
+
+    getBudget: function() {
+      return {
+        budget: data.budget,
+        totalInc: data.totals.inc,
+        totalExp: data.totals.exp,
+        percentage: data.percentage
+      }
+    },
+
     testing: function() {
       console.log(data);
     }
@@ -244,11 +309,13 @@ let controller = (function(budgetCtrl, UICtrl) {
   let updateBudget = function() {
 
     // Calculate budget
-    
+    budgetCtrl.calculateBudget();
+
     // Return budget
+    let budget = budgetCtrl.getBudget();
 
     // Display budget on UI
-
+    console.log(budget);
   }
 
   var ctrlAddItem = function() {
