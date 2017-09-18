@@ -23,7 +23,8 @@ x Create private object DOMstrings in UIController that houses all the types cla
   x Substitue DOMstrings properties instead of classnames for lookups
 x Add a method to the UIctrl returned object that returns the domstrings
 x set new variable DOM in global controler that points the DOMstrings()
-==== CREATE INITIALIZATION FUNCTION ===
+
+========== CREATE INITIALIZATION FUNCTION ===========
 - Goal is to clean up global controller
 X Set up function setupEventListeners to contain all event listeners
   X Include everything needed to make the event listeners function properly
@@ -32,11 +33,13 @@ x Create a return object for the global controller
     x console loge 'Application has started.'
     x Do something to ensure event listeners are active
 x Make sure event listeners are live (but how?!?)
-=== CREATING INCOME AND EXPENSE FUNCTION CONSTRUCTORS ===
+
+========== CREATING INCOME AND EXPENSE FUNCTION CONSTRUCTORS ==========
 x Create two function constructors; Expense and Income, that take 3 arguments; id, description, value
   x Test them publicly to ensure they work the way you intend
 x Create data structure (data) that houses (allItems) arrays of all expenses (exp), incomes(inc), and numbers for (totals) exp and inc
-=== ADDING A NEW ITEM TO OUR BUDGET CONTROLLER ===
+
+========== ADDING A NEW ITEM TO OUR BUDGET CONTROLLER ==========
 x Add return object to budget controller
 x Create method addItem that creates a new object and adds it to the data structure
   x create new item newItem
@@ -49,9 +52,26 @@ x Create method addItem that creates a new object and adds it to the data struct
   x Do something with newItem so we can use it later
 x Set it up so a new object is created evertime we click the button or press enter (What function do we call? where? with what do we call it with?)
   x create variable newItem for this object
-- Create a new method somewhere to be able to test and make sure our objects are being added to the data structure
+x Create a new method somewhere to be able to test and make sure our objects are being added to the data structure
 
-
+========== ADDING NEW ITEM TO UI ==========
+x Add new UIController public method addListItem 
+  x takes two parameters; obj and type
+  x Will do 3 things;
+    // 1. Create HTML string with placeholder text
+    // 2. Replace placeholder text with actual data
+    // 3. Add HTML to DOM
+  x Create HTML string;
+    x copy and paste all HTML from ghost income and expense events, turn to a string, and delete all new lines
+    x Use ifstatement to determine which to use (expense or income)
+    x assign result to variable html
+  x Replace placeholder text with actual data
+    x edit html texts so that the data you want to replace has proper name (id, description, value) surrounded by % bc easier to find
+    x replace text that you want to replace useing .replace method (create new variable newHtml for result)
+  x Add HTML to the DOM
+    x use insertAdjacentHTML(position, text) method to add the html element to the proper location (depending on type)
+    x add proper containers to dom strings (incomeContainer/expenseContainer)
+  - Call function in ctrlAddItem
 
 */
 
@@ -123,7 +143,9 @@ let UIController = (function() {
     inputType: '.add__type',
     inputDescription: '.add__description',
     inputValue: '.add__value',
-    inputBtn: '.add__btn'
+    inputBtn: '.add__btn',
+    incomeContainer: '.income__list',
+    expenseContainer: '.expenses__list'
   }
 
   // The returned object that is assigned to UIController
@@ -138,6 +160,27 @@ let UIController = (function() {
     },
     getDOMstrings: function() {
       return DOMstrings;
+    }, 
+    addListItem: function(obj, type) {
+      let html, newHtml, element;
+      // 1. Create HTML string with placeholder text
+      if (type === 'inc'){
+        // Set HTML and element
+        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+        element = document.querySelector(DOMstrings.incomeContainer);
+      } else {
+        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+        element = document.querySelector(DOMstrings.expenseContainer);
+      }
+
+      // 2. Replace placeholder text with actual data
+      newHtml = html.replace('%id%', obj.id);
+      newHtml = newHtml.replace('%description%', obj.description);
+      newHtml = newHtml.replace('%value%', obj.value);
+
+      // 3. Add HTML to DOM
+      element.insertAdjacentHTML('beforeend', newHtml);
+
     }
   }
 
@@ -172,7 +215,8 @@ let controller = (function(budgetCtrl, UICtrl) {
     let newItem = budgetController.addItem(input.type, input.description, input.value);
 
     // Add new item to UI controller
-    
+    UICtrl.addListItem(newItem, input.type);
+
     // Calculate budget
     
     // Display budget on UI
