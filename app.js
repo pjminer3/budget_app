@@ -162,6 +162,28 @@ x create public method deleteListItem(selectorID)
 - call method in relevant controller
 - update UI of budget
 
+========== UPDATING PERCENTAGES ==========
+x create private function updatePercentages
+    // 1. Calculate percentages
+    // 2. read percentages from budget controller
+    // 3. Update user interface
+x Call function in ctrlAddItem and ctrlDeleteItem
+
+========== UPDATING PERCENTAGES: BUDGET CONTROLLER ==========
+x create method calculatePercentages
+x add method to expense prototype:
+  x calcPercentage(totalIncome)
+  x create new property in expese object (percentage)
+    x set it to what we set it to when something is not defined yet and we want to override it
+  x set calcPercentage(totalIncome) so that it updates the percentage of the relevant expense object when ran
+  x set conditional so the function only works if totalIncome > 0, othewise make it equal to -1
+x add getPercentage() to expense prototype that returns the percentage (because it's important that each method does 1 thing only)
+x run calcPercentage for each element in data.allItems.exp
+x create new public method getPercentages
+  x have this function create and return a new arr allPerc of all the percentages of the data structure
+- call both of the above in the global controller and console log results
+  - test to ensure it's working properly
+
 
 
 */
@@ -173,7 +195,21 @@ let budgetController = (function() {
     this.id = id;
     this.description = description;
     this.value = value;
+    this.percentage = -1;
   };
+
+  Expense.prototype.calcPercentage = function(totalIncome) {
+    if (totalIncome > 0) {
+      this.percentage = Math.round((this.value / totalIncome) * 100);  
+    } else {
+      this.percentage = -1;
+    }
+  };
+
+  Expense.prototype.getPercentage = function() {
+    return this.percentage;
+  };
+
   // Creates income objects
   let Income = function(id, description, value) {
     this.id = id;
@@ -263,6 +299,12 @@ let budgetController = (function() {
       }
     },
 
+    calcPercentage: function() {
+      data.allItems.exp.forEach(function(obj) {
+        obj.calcPercentage(data.totals.inc);
+      });
+    }, 
+
     getBudget: function() {
       return {
         budget: data.budget,
@@ -270,6 +312,16 @@ let budgetController = (function() {
         totalExp: data.totals.exp,
         percentage: data.percentage
       }
+    },
+
+    getPercentages: function() {
+      let allPerc;
+
+      allPerc = data.allItems.exp.map(function(obj) {
+        return obj.percentage;
+      });
+
+      return allPerc;
     },
 
     testing: function() {
@@ -414,6 +466,18 @@ let controller = (function(budgetCtrl, UICtrl) {
     UICtrl.displayBudget(budget);
   }
 
+  let updatePercentages = function() {
+
+    // 1. Calculate percentages
+    budgetCtrl.calcPercentage();
+
+    // 2. read percentages from budget controller
+    let percentages = budgetCtrl.getPercentages();
+    // 3. Update user interface
+    console.log(percentages);
+
+  };
+
   var ctrlAddItem = function() {
     // Get field input data
     var input = UICtrl.getInput();
@@ -430,6 +494,9 @@ let controller = (function(budgetCtrl, UICtrl) {
   
       // Update budget
       updateBudget();
+
+      // Calculate and update percentages
+      updatePercentages();
     }
   }
 
@@ -453,6 +520,9 @@ let controller = (function(budgetCtrl, UICtrl) {
 
     // 3. Update and show new budget
     updateBudget();
+
+    // 4. Calculate and update percentages
+    updatePercentages();
   }
 
   return {
