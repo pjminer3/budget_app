@@ -127,6 +127,28 @@ x create public method displayBudget(obj)
 x call the function in the global controller
 - add function call to init function - substitute budget object for a similar object where every value = 0
 
+======= SETTING UP DELETE EVENT LISTENER USING EVENT DELEGATION ==========
+x Set up an eventlistener on a parent element that will contain both income objects and expense objects (so we only need 1 event listener for both)
+  x add it where all other eventListener functions are
+  x add it to domstrings (container)
+  x make the function to execute on clicks ctrlDeleteItem
+- Create ctrlDeleteItem(event) in global controller <-- Note that when passing a function that takes an argument into an eventhandler, the event will always be the argument
+  x in the function console.log the element that has the event
+  x Click around the container to ensure that it works
+  x Go to UI Controller - change HTML string element IDs from 'income-0' and 'expense-' to 'inc-' and 'exp-'
+  x in the function traverse the DOM from the delete button until it highlights the entire budget UI element
+    x get the ID property of the DOM element and save as variable itemID
+    x create an conditional statement that will only execute if we've clicked on a delete icon/button
+      x create variable splitID that splits IDs between the type and number
+      x create variable type and variable ID; assign them the right values
+    - Dignate the next stpes in the function to be:
+      // 1. Delete the item from data structure
+      // 2. Delete item from UI
+      // 3. Update and show new budget
+
+
+  
+
 
 
 
@@ -246,7 +268,8 @@ let UIController = (function() {
     budgetLabel: '.budget__value',
     incomeLabel: '.budget__income--value',
     expensesLabel: '.budget__expenses--value',
-    percentageLabel: '.budget__expenses--percentage'
+    percentageLabel: '.budget__expenses--percentage',
+    container: '.container'
   }
 
   // The returned object that is assigned to UIController
@@ -269,10 +292,10 @@ let UIController = (function() {
       // 1. Create HTML string with placeholder text
       if (type === 'inc'){
         // Set HTML and element
-        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+        html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
         element = document.querySelector(DOMstrings.incomeContainer);
       } else {
-        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+        html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
         element = document.querySelector(DOMstrings.expenseContainer);
       }
 
@@ -331,6 +354,7 @@ let controller = (function(budgetCtrl, UICtrl) {
 
     // Create budget event when button is clicked
     document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
+
     // Create budget event when 'enter' is pressed
     document.addEventListener('keypress', function(event) { // An event argument in an eventListener is a huge deal!
       if(event.keyCode === 13 || event.which === 13) { // Only ctrlAddItem if the key pressed was 'Enter'
@@ -339,6 +363,8 @@ let controller = (function(budgetCtrl, UICtrl) {
         ctrlAddItem();
       }
     });
+
+    document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem)
   }
 
   let updateBudget = function() {
@@ -350,7 +376,6 @@ let controller = (function(budgetCtrl, UICtrl) {
     let budget = budgetCtrl.getBudget();
 
     // Display budget on UI
-    console.log(budget);
     UICtrl.displayBudget(budget);
   }
 
@@ -371,6 +396,26 @@ let controller = (function(budgetCtrl, UICtrl) {
       // Update budget
       updateBudget();
     }
+  }
+
+  let ctrlDeleteItem = function(event) {
+
+    let itemID, splitID, type, ID;
+
+    itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+
+    if (itemID) {
+      splitID = itemID.split('-');
+      type = splitID[0];
+      ID = splitID[1];
+    }
+
+    // 1. Delete the item from data structure
+    
+    // 2. Delete item from UI
+    
+    // 3. Update and show new budget
+
   }
 
   return {
