@@ -147,16 +147,20 @@ x Set up an eventlistener on a parent element that will contain both income obje
       // 3. Update and show new budget
 
 ========== DELETING ITEM FROM BUDGET CONTROLLER ==========
-- create public method deleteItem(type, ID)
+x create public method deleteItem(type, ID)
   - TRY THIS AFTERWARDS: use map to loop through the respective element array and effectively delete the element with the ID you're trying to delete
   x create variable ids that is an array of all element ids (using map)
   x create variable index that equals the index of the ID trying to delete
   x set conditional to remove the element as long as the index actually exists (aka is not... -1)
     x delete desired element using splice
-- use method in global controller
-- test it using budgetcontroller.testing()
+x use method in global controller
+x test it using budgetcontroller.testing()
   
-
+========== DELETING ITEM FROM UI ==========
+x create public method deleteListItem(selectorID)
+  - delete the element by using a method that has to do with parent node
+- call method in relevant controller
+- update UI of budget
 
 
 
@@ -332,6 +336,14 @@ let UIController = (function() {
 
     },
 
+    deleteListItem: function(selectorID) {
+      let el = document.getElementById(selectorID);
+
+      // Removes the element with the ID we pass in as an argument
+      el.parentNode.removeChild(el);
+
+    },
+
     clearFields: function() {
       let fields, fieldsArr;
 
@@ -437,9 +449,10 @@ let controller = (function(budgetCtrl, UICtrl) {
     budgetCtrl.deleteItem(type, ID);
 
     // 2. Delete item from UI
-    
-    // 3. Update and show new budget
+    UICtrl.deleteListItem(itemID);
 
+    // 3. Update and show new budget
+    updateBudget();
   }
 
   return {
