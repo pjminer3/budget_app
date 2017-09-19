@@ -127,7 +127,7 @@ x create public method displayBudget(obj)
 x call the function in the global controller
 - add function call to init function - substitute budget object for a similar object where every value = 0
 
-======= SETTING UP DELETE EVENT LISTENER USING EVENT DELEGATION ==========
+========== SETTING UP DELETE EVENT LISTENER USING EVENT DELEGATION ==========
 x Set up an eventlistener on a parent element that will contain both income objects and expense objects (so we only need 1 event listener for both)
   x add it where all other eventListener functions are
   x add it to domstrings (container)
@@ -141,12 +141,20 @@ x Set up an eventlistener on a parent element that will contain both income obje
     x create an conditional statement that will only execute if we've clicked on a delete icon/button
       x create variable splitID that splits IDs between the type and number
       x create variable type and variable ID; assign them the right values
-    - Dignate the next stpes in the function to be:
+    x Dignate the next stpes in the function to be:
       // 1. Delete the item from data structure
       // 2. Delete item from UI
       // 3. Update and show new budget
 
-
+========== DELETING ITEM FROM BUDGET CONTROLLER ==========
+- create public method deleteItem(type, ID)
+  - TRY THIS AFTERWARDS: use map to loop through the respective element array and effectively delete the element with the ID you're trying to delete
+  x create variable ids that is an array of all element ids (using map)
+  x create variable index that equals the index of the ID trying to delete
+  x set conditional to remove the element as long as the index actually exists (aka is not... -1)
+    x delete desired element using splice
+- use method in global controller
+- test it using budgetcontroller.testing()
   
 
 
@@ -215,6 +223,21 @@ let budgetController = (function() {
 
       // Return new budget entry
       return newItem;
+    },
+
+    deleteItem: function(type, id) {
+      let ids, index;
+
+      ids = data.allItems[type].map(function(obj) {
+        return obj.id;
+      });
+
+      index = ids.indexOf(id);
+
+      if (index !== -1) {
+        data.allItems[type].splice(index,1);
+      }
+
     },
 
     calculateBudget: function() {
@@ -407,11 +430,12 @@ let controller = (function(budgetCtrl, UICtrl) {
     if (itemID) {
       splitID = itemID.split('-');
       type = splitID[0];
-      ID = splitID[1];
+      ID = parseInt(splitID[1]);
     }
 
     // 1. Delete the item from data structure
-    
+    budgetCtrl.deleteItem(type, ID);
+
     // 2. Delete item from UI
     
     // 3. Update and show new budget
