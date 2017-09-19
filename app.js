@@ -90,7 +90,7 @@ x Convert getInput function in UIctrl so that value is a number (use parseFloat)
 x write if statement to ensure that budget items will only be created and shown if description != '' and value is a number greater than 0
 
 ========== UPDATING THE BUDGET: BUDGET CONTROLLER (CONTINUED) ==========
-- How are we going to create the updateBudget function?
+x How are we going to create the updateBudget function?
 x create public calculateBudget method in the relevant controller
   x What it will do:
     // calculate total income & expenses
@@ -114,9 +114,20 @@ x Run calculateBudget where it needs to be ran
 x create getBudget public method in the relevant controller
   x set it so that it returns all 4 values needed: budget, totalInc, totalExp, percentage
 x run getBudget where it needs to be ran, creating new variable 'budget'
-- test by console.log the created budget object
+x test by console.log the created budget object
 
-    
+========== UPDATING BUDGET: UI CONTROLLER ==========
+x add the following DOMstrings; the budget (budgetLabel), income (incomeLabel), expenses (expensesLabel), and percentage (percentageLabel) for expenses
+x create public method displayBudget(obj)
+  x select budget DOM element and change text content to equal to the budget (from the object we pass to the method)
+  x Do the same with income
+  x Do same with expenses
+  x do the same with percentage
+    x add conditional so that if it is a percentage greater than 0 add %, and if it's 0 or -1 show '---'
+x call the function in the global controller
+- add function call to init function - substitute budget object for a similar object where every value = 0
+
+
 
 
 */
@@ -196,6 +207,10 @@ let budgetController = (function() {
       // calculate the % of income we've spent
       if (data.totals.inc > 0 && data.totals.exp > 0) {
         data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
+      } else if (data.totals.inc === 0 && data.totals.exp > 0){
+        data.percentage = -1;
+      } else if (data.totals.inc > 0 && data.totals.exp === 0) {
+        data.percentage = 0;
       }
     },
 
@@ -227,7 +242,11 @@ let UIController = (function() {
     inputValue: '.add__value',
     inputBtn: '.add__btn',
     incomeContainer: '.income__list',
-    expenseContainer: '.expenses__list'
+    expenseContainer: '.expenses__list',
+    budgetLabel: '.budget__value',
+    incomeLabel: '.budget__income--value',
+    expensesLabel: '.budget__expenses--value',
+    percentageLabel: '.budget__expenses--percentage'
   }
 
   // The returned object that is assigned to UIController
@@ -240,9 +259,11 @@ let UIController = (function() {
         value: parseFloat(document.querySelector(DOMstrings.inputValue).value)
       }
     },
+
     getDOMstrings: function() {
       return DOMstrings;
     }, 
+
     addListItem: function(obj, type) {
       let html, newHtml, element;
       // 1. Create HTML string with placeholder text
@@ -264,6 +285,7 @@ let UIController = (function() {
       element.insertAdjacentHTML('beforeend', newHtml);
 
     },
+
     clearFields: function() {
       let fields, fieldsArr;
 
@@ -280,7 +302,20 @@ let UIController = (function() {
       
       // Return focus to first input element
       fieldsArr[0].focus();
+    }, 
+
+    displayBudget: function(obj) {
+      document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
+      document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
+      document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
+      
+      if (obj.percentage > 0) {
+        document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage;
+      } else {
+        document.querySelector(DOMstrings.percentageLabel).textContent = '---';
+      }
     }
+
   }
 
 }());
@@ -316,6 +351,7 @@ let controller = (function(budgetCtrl, UICtrl) {
 
     // Display budget on UI
     console.log(budget);
+    UICtrl.displayBudget(budget);
   }
 
   var ctrlAddItem = function() {
@@ -340,6 +376,12 @@ let controller = (function(budgetCtrl, UICtrl) {
   return {
     init: function() {
       setupEventListeners();
+      UICtrl.displayBudget({
+        budget: 0,
+        totalInc: 0,
+        totalExp: 0,
+        percentage: '---'
+      });
     }
   }
 
