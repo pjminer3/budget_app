@@ -181,8 +181,22 @@ x add getPercentage() to expense prototype that returns the percentage (because 
 x run calcPercentage for each element in data.allItems.exp
 x create new public method getPercentages
   x have this function create and return a new arr allPerc of all the percentages of the data structure
-- call both of the above in the global controller and console log results
-  - test to ensure it's working properly
+x call both of the above in the global controller and console log results
+  x test to ensure it's working properly
+
+========== UPDATING PERCENTAGES: UI CONTROLLER ==========
+x add the relevant element lookup to DOMstrings to select all expense percentages
+  x expensesPercLabel
+x create displayPercentages(percentages) public method
+  x create nodeList fields of all expense percentages
+  x create/call a function nodeListForEach(fields, function(current, idx) {})
+    x // Do code
+  x create nodeListForEach(list, callback)
+    x use for loop to call callback on element and index of each list item
+  x (going back to nodeListForEach) Inside the function call....
+    - set each elements text value to equal the percentage value it is associated with
+
+
 
 
 
@@ -348,7 +362,8 @@ let UIController = (function() {
     incomeLabel: '.budget__income--value',
     expensesLabel: '.budget__expenses--value',
     percentageLabel: '.budget__expenses--percentage',
-    container: '.container'
+    container: '.container',
+    expensesPercLabel: '.item__percentage'
   }
 
   // The returned object that is assigned to UIController
@@ -420,10 +435,36 @@ let UIController = (function() {
       document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
       
       if (obj.percentage > 0) {
-        document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage;
+        document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
       } else {
         document.querySelector(DOMstrings.percentageLabel).textContent = '---';
       }
+    },
+
+    displayPercentages: function(percentages) {
+
+      let fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
+
+      let nodeListForEach = function(list, callback) {
+        // Calls the callback function once per list item... just like .forEach
+        for (let i = 0; i < list.length; i++) {
+          callback(list[i], i);
+        }
+
+      };
+
+      nodeListForEach(fields, function(current, idx) {
+
+        if (percentages[idx] > 0) {
+          current.textContent = percentages[idx] + '%';
+        } else {
+          current.textContent = '---';
+        }
+
+      });
+
+
+
     }
 
   }
@@ -474,7 +515,7 @@ let controller = (function(budgetCtrl, UICtrl) {
     // 2. read percentages from budget controller
     let percentages = budgetCtrl.getPercentages();
     // 3. Update user interface
-    console.log(percentages);
+    UICtrl.displayPercentages(percentages);
 
   };
 
