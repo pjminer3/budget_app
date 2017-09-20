@@ -194,8 +194,28 @@ x create displayPercentages(percentages) public method
   x create nodeListForEach(list, callback)
     x use for loop to call callback on element and index of each list item
   x (going back to nodeListForEach) Inside the function call....
-    - set each elements text value to equal the percentage value it is associated with
+    x set each elements text value to equal the percentage value it is associated with
 
+========== FORMATTING NUMBERS: STRING MANIPULATION ==========
+- create private function formatNumber(num, type)
+  - Rules:
+   // + or - before the number
+   // exactly two decimal points
+   // comma separating the thousands
+  x to set the decimals
+    x remove the type of num (+ or -)
+    x set the number of decimals num will go to
+  x to make comma separating thousands
+    x create variable numSplit that gets array of the integer part and the decimal part of the number
+    x create variables int and dec and assign them to the right values
+    x create conditional that if number is greater than 999 it adds decimals to the number to format correctly (hint: substrings)
+  x + or - before the number
+    x create sign variable
+      x set sign according to they type
+  x return it all together
+x call it on all numbers in the UI
+  x entry items and total budget items
+  x total budget may be tricky... (hint: type?)
 
 
 
@@ -366,6 +386,46 @@ let UIController = (function() {
     expensesPercLabel: '.item__percentage'
   }
 
+  let formatNumber = function(num, type) {
+    let splitNum, int, dec, sign, leftDigits, numHrds, newInt;
+    
+    if (!type) {
+      sign = '';
+    }
+
+    // + or - before the number
+    if (type === 'inc') {
+      sign = '+';
+    } else if (type === 'exp') {
+      sign = '-';
+    } 
+
+    // exactly two decimal points
+    num = Math.abs(num);
+    num = num.toFixed(2);
+    splitNum = num.split('.');
+    int = splitNum[0];
+    dec = splitNum[1];
+  
+    // comma separating the thousands
+    if (int.length > 3) {
+      leftDigits = int.length % 3;
+      numHrds = (int.length - leftDigits) / 3
+      newInt = int.substring(0, leftDigits);
+
+      for (let i = 1; i <= numHrds; i ++) {
+        newInt += (newInt ? ',' : '') + int.substring(leftDigits, leftDigits + 3);
+        leftDigits = leftDigits + 3;
+      }
+    } else {
+      newInt = int;
+    }
+
+    // return it all
+    return sign + ' $' + newInt + '.' + dec;
+
+  };
+
   // The returned object that is assigned to UIController
   return {
     getInput: function() {
@@ -386,17 +446,17 @@ let UIController = (function() {
       // 1. Create HTML string with placeholder text
       if (type === 'inc'){
         // Set HTML and element
-        html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+        html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
         element = document.querySelector(DOMstrings.incomeContainer);
       } else {
-        html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+        html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
         element = document.querySelector(DOMstrings.expenseContainer);
       }
 
       // 2. Replace placeholder text with actual data
       newHtml = html.replace('%id%', obj.id);
       newHtml = newHtml.replace('%description%', obj.description);
-      newHtml = newHtml.replace('%value%', obj.value);
+      newHtml = newHtml.replace('%value%', formatNumber(obj.value, type));
 
       // 3. Add HTML to DOM
       element.insertAdjacentHTML('beforeend', newHtml);
@@ -430,9 +490,17 @@ let UIController = (function() {
     }, 
 
     displayBudget: function(obj) {
-      document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
-      document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
-      document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
+      let type;
+
+      if (obj.budget > 0) {
+        type = 'inc';
+      } else if (obj.budget < 0) {
+        type = 'exp';
+      }
+
+      document.querySelector(DOMstrings.budgetLabel).textContent = formatNumber(obj.budget, type);
+      document.querySelector(DOMstrings.incomeLabel).textContent = formatNumber(obj.totalInc, 'inc');
+      document.querySelector(DOMstrings.expensesLabel).textContent = formatNumber(obj.totalExp, 'exp');
       
       if (obj.percentage > 0) {
         document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
