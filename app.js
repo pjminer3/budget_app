@@ -218,12 +218,20 @@ x call it on all numbers in the UI
   x total budget may be tricky... (hint: type?)
 
 ========== DISPLAYING THE CURRENT MONTH & YEAR =========
-- create new method displayMonth
-  - create variable now that has a value of today's date
-  - create variable year that has today's year
-  - create variable month that has today's month
-  - change text content of the proper element to 'Month, Year'
-- call function in init();
+x create new method displayMonth
+  x create variable now that has a value of today's date
+  x create variable year that has today's year
+  x create variable month that has today's month
+  x change text content of the proper element to 'Month, Year'
+x call function in init();
+
+========== FINISHING TOUCHES ==========
+x add inputType 'change' eventListener, call changedType
+x create changedType public method:
+  x create variable fields and select all input fields
+  - add red-focus class to all elements in fields
+  - add red class to button
+- Make sure that the change doesn't just add the class, but takes it away when it's changed twice
 
 
 */
@@ -433,6 +441,13 @@ let UIController = (function() {
 
   };
 
+  let nodeListForEach = function(list, callback) {
+    // Calls the callback function once per list item... just like .forEach
+    for (let i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  };
+
   // The returned object that is assigned to UIController
   return {
     getInput: function() {
@@ -520,14 +535,6 @@ let UIController = (function() {
 
       let fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
 
-      let nodeListForEach = function(list, callback) {
-        // Calls the callback function once per list item... just like .forEach
-        for (let i = 0; i < list.length; i++) {
-          callback(list[i], i);
-        }
-
-      };
-
       nodeListForEach(fields, function(current, idx) {
 
         if (percentages[idx] > 0) {
@@ -551,6 +558,23 @@ let UIController = (function() {
 
       // displays today's year and month
       document.querySelector(DOMstrings.budgetDate).textContent = month + ', ' + year;
+    },
+
+    changedType: function() {
+
+      let fields = document.querySelectorAll(
+        DOMstrings.inputType + ', ' +
+        DOMstrings.inputDescription + ', ' +
+        DOMstrings.inputValue);
+
+      nodeListForEach(fields, function(element, idx) {
+
+        element.classList.toggle('red-focus');
+
+      });
+
+      document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
+
     }
 
   }
@@ -579,6 +603,8 @@ let controller = (function(budgetCtrl, UICtrl) {
     });
 
     document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem)
+
+    document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
   }
 
   let updateBudget = function() {
