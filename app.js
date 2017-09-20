@@ -197,8 +197,8 @@ x create displayPercentages(percentages) public method
     x set each elements text value to equal the percentage value it is associated with
 
 ========== FORMATTING NUMBERS: STRING MANIPULATION ==========
-- create private function formatNumber(num, type)
-  - Rules:
+x create private function formatNumber(num, type)
+  x Rules:
    // + or - before the number
    // exactly two decimal points
    // comma separating the thousands
@@ -217,7 +217,13 @@ x call it on all numbers in the UI
   x entry items and total budget items
   x total budget may be tricky... (hint: type?)
 
-
+========== DISPLAYING THE CURRENT MONTH & YEAR =========
+- create new method displayMonth
+  - create variable now that has a value of today's date
+  - create variable year that has today's year
+  - create variable month that has today's month
+  - change text content of the proper element to 'Month, Year'
+- call function in init();
 
 
 */
@@ -383,7 +389,8 @@ let UIController = (function() {
     expensesLabel: '.budget__expenses--value',
     percentageLabel: '.budget__expenses--percentage',
     container: '.container',
-    expensesPercLabel: '.item__percentage'
+    expensesPercLabel: '.item__percentage',
+    budgetDate: '.budget__title--month'
   }
 
   let formatNumber = function(num, type) {
@@ -530,9 +537,20 @@ let UIController = (function() {
         }
 
       });
+    },
+    
+    displayMonth: function() {
+      let now, year, month, months;
+
+      months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 
+      now = new Date();
+      year = now.getFullYear();
+      month = months[now.getMonth().toString()];
 
+      // displays today's year and month
+      document.querySelector(DOMstrings.budgetDate).textContent = month + ', ' + year;
     }
 
   }
@@ -643,6 +661,7 @@ let controller = (function(budgetCtrl, UICtrl) {
         totalExp: 0,
         percentage: '---'
       });
+      UICtrl.displayMonth();
     }
   }
 
